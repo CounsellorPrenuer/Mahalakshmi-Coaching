@@ -19,7 +19,14 @@ import {
   TrendingUp,
   BarChart3,
   MessageSquare,
-  Loader2
+  Loader2,
+  Star,
+  FileText,
+  Sparkles,
+  Trash2,
+  Plus,
+  Edit,
+  Save
 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -35,7 +42,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { ContactSubmission, ButtonClick, PageView, Payment } from "@shared/schema";
+import type { ContactSubmission, ButtonClick, PageView, Payment, Review, BlogPost } from "@shared/schema";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 // All buttons on the website with their information
 const allButtons = [
@@ -215,6 +225,44 @@ function Dashboard() {
     queryKey: ["/api/admin/payments"],
   });
 
+  const { data: reviews = [], refetch: refetchReviews } = useQuery<Review[]>({
+    queryKey: ["/api/admin/reviews"],
+  });
+
+  const { data: blogPosts = [], refetch: refetchBlog } = useQuery<BlogPost[]>({
+    queryKey: ["/api/admin/blog"],
+  });
+
+  // Review form state
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [reviewForm, setReviewForm] = useState({
+    name: "",
+    role: "",
+    company: "",
+    content: "",
+    rating: 5,
+    isVisible: 1,
+  });
+
+  // Blog form state
+  const [showBlogForm, setShowBlogForm] = useState(false);
+  const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
+  const [blogForm, setBlogForm] = useState({
+    title: "",
+    slug: "",
+    excerpt: "",
+    content: "",
+    imageUrl: "",
+    isPublished: 0,
+  });
+
+  // AI Blog generation state
+  const [aiTopic, setAiTopic] = useState("");
+  const [aiTone, setAiTone] = useState("professional and inspiring");
+  const [aiLength, setAiLength] = useState("medium");
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const updateContactMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
       await apiRequest("PATCH", `/api/admin/contacts/${id}`, { status });
@@ -225,12 +273,140 @@ function Dashboard() {
     },
   });
 
+  // Review mutations
+  const createReviewMutation = useMutation({
+    mutationFn: async (review: typeof reviewForm) => {
+      await apiRequest("POST", "/api/admin/reviews", review);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/reviews"] });
+      resetReviewForm();
+    },
+  });
+
+  const updateReviewMutation = useMutation({
+    mutationFn: async ({ id, ...data }: { id: number } & Partial<Review>) => {
+      await apiRequest("PATCH", `/api/admin/reviews/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/reviews"] });
+      resetReviewForm();
+    },
+  });
+
+  const deleteReviewMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/admin/reviews/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/reviews"] });
+    },
+  });
+
+  // Blog mutations
+  const createBlogMutation = useMutation({
+    mutationFn: async (post: typeof blogForm) => {
+      await apiRequest("POST", "/api/admin/blog", post);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/blog"] });
+      resetBlogForm();
+    },
+  });
+
+  const updateBlogMutation = useMutation({
+    mutationFn: async ({ id, ...data }: { id: number } & Partial<BlogPost>) => {
+      await apiRequest("PATCH", `/api/admin/blog/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/blog"] });
+      resetBlogForm();
+    },
+  });
+
+  const deleteBlogMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/admin/blog/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/blog"] });
+    },
+  });
+
+  const resetReviewForm = () => {
+    setShowReviewForm(false);
+    setEditingReview(null);
+    setReviewForm({ name: "", role: "", company: "", content: "", rating: 5, isVisible: 1 });
+  };
+
+  const resetBlogForm = () => {
+    setShowBlogForm(false);
+    setEditingBlog(null);
+    setBlogForm({ title: "", slug: "", excerpt: "", content: "", imageUrl: "", isPublished: 0 });
+  };
+
+  const handleEditReview = (review: Review) => {
+    setEditingReview(review);
+    setReviewForm({
+      name: review.name,
+      role: review.role,
+      company: review.company || "",
+      content: review.content,
+      rating: review.rating,
+      isVisible: review.isVisible,
+    });
+    setShowReviewForm(true);
+  };
+
+  const handleEditBlog = (post: BlogPost) => {
+    setEditingBlog(post);
+    setBlogForm({
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt,
+      content: post.content,
+      imageUrl: post.imageUrl || "",
+      isPublished: post.isPublished,
+    });
+    setShowBlogForm(true);
+  };
+
+  const generateBlogWithAI = async () => {
+    if (!aiTopic.trim()) return;
+    setIsGenerating(true);
+    try {
+      const response = await apiRequest("POST", "/api/admin/generate-blog", {
+        topic: aiTopic,
+        tone: aiTone,
+        length: aiLength,
+      });
+      const data = await response.json();
+      if (data.title) {
+        setBlogForm({
+          title: data.title,
+          slug: data.slug,
+          excerpt: data.excerpt,
+          content: data.content,
+          imageUrl: "",
+          isPublished: 0,
+        });
+        setShowBlogForm(true);
+        setAiTopic("");
+      }
+    } catch (error) {
+      console.error("AI generation failed:", error);
+    }
+    setIsGenerating(false);
+  };
+
   const refreshAll = () => {
     refetchStats();
     refetchContacts();
     refetchClicks();
     refetchViews();
     refetchPayments();
+    refetchReviews();
+    refetchBlog();
   };
 
   const getStatusBadge = (status: string) => {
@@ -306,7 +482,7 @@ function Dashboard() {
         </div>
 
         <Tabs defaultValue="buttons" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 max-w-2xl">
+          <TabsList className="grid w-full grid-cols-7 max-w-4xl">
             <TabsTrigger value="buttons" data-testid="tab-buttons">
               <MousePointerClick className="w-4 h-4 mr-2" />
               Buttons
@@ -318,6 +494,14 @@ function Dashboard() {
             <TabsTrigger value="payments" data-testid="tab-payments">
               <CreditCard className="w-4 h-4 mr-2" />
               Payments
+            </TabsTrigger>
+            <TabsTrigger value="reviews" data-testid="tab-reviews">
+              <Star className="w-4 h-4 mr-2" />
+              Reviews
+            </TabsTrigger>
+            <TabsTrigger value="blog" data-testid="tab-blog">
+              <FileText className="w-4 h-4 mr-2" />
+              Blog
             </TabsTrigger>
             <TabsTrigger value="analytics" data-testid="tab-analytics">
               <BarChart3 className="w-4 h-4 mr-2" />
@@ -511,6 +695,388 @@ function Dashboard() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="reviews">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between gap-4 flex-wrap">
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="w-5 h-5" />
+                    Reviews & Testimonials
+                  </CardTitle>
+                  <Button
+                    onClick={() => setShowReviewForm(true)}
+                    data-testid="button-add-review"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Review
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {showReviewForm && (
+                  <div className="mb-6 p-4 border rounded-lg bg-muted/50">
+                    <h4 className="font-semibold mb-4">
+                      {editingReview ? "Edit Review" : "Add New Review"}
+                    </h4>
+                    <div className="grid gap-4">
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <Input
+                          placeholder="Name"
+                          value={reviewForm.name}
+                          onChange={(e) => setReviewForm({ ...reviewForm, name: e.target.value })}
+                          data-testid="input-review-name"
+                        />
+                        <Input
+                          placeholder="Role (e.g., Software Engineer)"
+                          value={reviewForm.role}
+                          onChange={(e) => setReviewForm({ ...reviewForm, role: e.target.value })}
+                          data-testid="input-review-role"
+                        />
+                      </div>
+                      <Input
+                        placeholder="Company (optional)"
+                        value={reviewForm.company}
+                        onChange={(e) => setReviewForm({ ...reviewForm, company: e.target.value })}
+                        data-testid="input-review-company"
+                      />
+                      <Textarea
+                        placeholder="Review content..."
+                        value={reviewForm.content}
+                        onChange={(e) => setReviewForm({ ...reviewForm, content: e.target.value })}
+                        rows={4}
+                        data-testid="input-review-content"
+                      />
+                      <div className="flex flex-wrap items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <Label>Rating:</Label>
+                          <Select
+                            value={String(reviewForm.rating)}
+                            onValueChange={(v) => setReviewForm({ ...reviewForm, rating: Number(v) })}
+                          >
+                            <SelectTrigger className="w-20" data-testid="select-review-rating">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[1, 2, 3, 4, 5].map(n => (
+                                <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={reviewForm.isVisible === 1}
+                            onCheckedChange={(c) => setReviewForm({ ...reviewForm, isVisible: c ? 1 : 0 })}
+                            data-testid="switch-review-visible"
+                          />
+                          <Label>Visible on website</Label>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => {
+                            if (editingReview) {
+                              updateReviewMutation.mutate({ id: editingReview.id, ...reviewForm });
+                            } else {
+                              createReviewMutation.mutate(reviewForm);
+                            }
+                          }}
+                          disabled={!reviewForm.name || !reviewForm.role || !reviewForm.content}
+                          data-testid="button-save-review"
+                        >
+                          <Save className="w-4 h-4 mr-2" />
+                          {editingReview ? "Update" : "Save"}
+                        </Button>
+                        <Button variant="outline" onClick={resetReviewForm}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {reviews.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Star className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No reviews yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {reviews.map(review => (
+                      <div
+                        key={review.id}
+                        className="p-4 rounded-lg bg-card border"
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="font-semibold text-foreground">{review.name}</span>
+                              <Badge variant="outline">{review.role}</Badge>
+                              {review.company && (
+                                <span className="text-sm text-muted-foreground">at {review.company}</span>
+                              )}
+                              {review.isVisible === 0 && (
+                                <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">Hidden</Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1 mt-1">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`w-4 h-4 ${i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-muted"}`}
+                                />
+                              ))}
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                              {review.content}
+                            </p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => handleEditReview(review)}
+                              data-testid={`button-edit-review-${review.id}`}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => deleteReviewMutation.mutate(review.id)}
+                              data-testid={`button-delete-review-${review.id}`}
+                            >
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="blog">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-purple-500" />
+                    AI Blog Generator
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Generate blog posts using AI. Powered by Replit AI Integrations - charges billed to your credits.
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4">
+                    <Input
+                      placeholder="Enter blog topic (e.g., 'How to ace your job interview')"
+                      value={aiTopic}
+                      onChange={(e) => setAiTopic(e.target.value)}
+                      data-testid="input-ai-topic"
+                    />
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label className="mb-2 block">Tone</Label>
+                        <Select value={aiTone} onValueChange={setAiTone}>
+                          <SelectTrigger data-testid="select-ai-tone">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="professional and inspiring">Professional & Inspiring</SelectItem>
+                            <SelectItem value="casual and friendly">Casual & Friendly</SelectItem>
+                            <SelectItem value="authoritative and expert">Authoritative & Expert</SelectItem>
+                            <SelectItem value="motivational and encouraging">Motivational</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="mb-2 block">Length</Label>
+                        <Select value={aiLength} onValueChange={setAiLength}>
+                          <SelectTrigger data-testid="select-ai-length">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="short">Short (~300 words)</SelectItem>
+                            <SelectItem value="medium">Medium (~500 words)</SelectItem>
+                            <SelectItem value="long">Long (~800 words)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={generateBlogWithAI}
+                      disabled={!aiTopic.trim() || isGenerating}
+                      className="w-full sm:w-auto"
+                      data-testid="button-generate-blog"
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Generate Blog Post
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="w-5 h-5" />
+                      Blog Posts
+                    </CardTitle>
+                    <Button
+                      onClick={() => setShowBlogForm(true)}
+                      data-testid="button-add-blog"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      New Post
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {showBlogForm && (
+                    <div className="mb-6 p-4 border rounded-lg bg-muted/50">
+                      <h4 className="font-semibold mb-4">
+                        {editingBlog ? "Edit Blog Post" : "New Blog Post"}
+                      </h4>
+                      <div className="grid gap-4">
+                        <Input
+                          placeholder="Title"
+                          value={blogForm.title}
+                          onChange={(e) => setBlogForm({ ...blogForm, title: e.target.value })}
+                          data-testid="input-blog-title"
+                        />
+                        <Input
+                          placeholder="Slug (URL-friendly name)"
+                          value={blogForm.slug}
+                          onChange={(e) => setBlogForm({ ...blogForm, slug: e.target.value })}
+                          data-testid="input-blog-slug"
+                        />
+                        <Textarea
+                          placeholder="Excerpt (short summary)"
+                          value={blogForm.excerpt}
+                          onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })}
+                          rows={2}
+                          data-testid="input-blog-excerpt"
+                        />
+                        <Textarea
+                          placeholder="Content (supports markdown)"
+                          value={blogForm.content}
+                          onChange={(e) => setBlogForm({ ...blogForm, content: e.target.value })}
+                          rows={10}
+                          data-testid="input-blog-content"
+                        />
+                        <Input
+                          placeholder="Image URL (optional)"
+                          value={blogForm.imageUrl}
+                          onChange={(e) => setBlogForm({ ...blogForm, imageUrl: e.target.value })}
+                          data-testid="input-blog-image"
+                        />
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={blogForm.isPublished === 1}
+                            onCheckedChange={(c) => setBlogForm({ ...blogForm, isPublished: c ? 1 : 0 })}
+                            data-testid="switch-blog-published"
+                          />
+                          <Label>Published</Label>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => {
+                              if (editingBlog) {
+                                updateBlogMutation.mutate({ id: editingBlog.id, ...blogForm });
+                              } else {
+                                createBlogMutation.mutate(blogForm);
+                              }
+                            }}
+                            disabled={!blogForm.title || !blogForm.slug || !blogForm.content}
+                            data-testid="button-save-blog"
+                          >
+                            <Save className="w-4 h-4 mr-2" />
+                            {editingBlog ? "Update" : "Save"}
+                          </Button>
+                          <Button variant="outline" onClick={resetBlogForm}>
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {blogPosts.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>No blog posts yet</p>
+                      <p className="text-sm mt-2">Use the AI generator above or create a post manually</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {blogPosts.map(post => (
+                        <div
+                          key={post.id}
+                          className="p-4 rounded-lg bg-card border"
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-semibold text-foreground">{post.title}</span>
+                                {post.isPublished === 1 ? (
+                                  <Badge className="bg-green-500/10 text-green-600 border-green-500/20">Published</Badge>
+                                ) : (
+                                  <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">Draft</Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                                {post.excerpt}
+                              </p>
+                              <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-muted-foreground">
+                                <span>/{post.slug}</span>
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  {new Date(post.createdAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => handleEditBlog(post)}
+                                data-testid={`button-edit-blog-${post.id}`}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => deleteBlogMutation.mutate(post.id)}
+                                data-testid={`button-delete-blog-${post.id}`}
+                              >
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="analytics">

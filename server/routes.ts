@@ -4,8 +4,15 @@ import { storage } from "./storage";
 import { insertContactSubmissionSchema } from "@shared/schema";
 import Razorpay from "razorpay";
 import crypto from "crypto";
+import OpenAI from "openai";
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "pathfinder2024";
+
+// the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+const openai = new OpenAI({
+  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
+});
 
 export async function registerRoutes(
   httpServer: Server,
@@ -222,6 +229,173 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Payment verification error:", error);
       res.status(500).json({ success: false, error: "Verification failed" });
+    }
+  });
+
+  // Reviews endpoints
+  app.get("/api/reviews", async (req, res) => {
+    try {
+      const reviews = await storage.getReviews();
+      // Filter to only visible reviews for public endpoint
+      const visibleReviews = reviews.filter(r => r.isVisible === 1);
+      res.json(visibleReviews);
+    } catch (error) {
+      console.error("Reviews error:", error);
+      res.status(500).json({ error: "Failed to get reviews" });
+    }
+  });
+
+  app.get("/api/admin/reviews", async (req, res) => {
+    try {
+      const reviews = await storage.getReviews();
+      res.json(reviews);
+    } catch (error) {
+      console.error("Admin reviews error:", error);
+      res.status(500).json({ error: "Failed to get reviews" });
+    }
+  });
+
+  app.post("/api/admin/reviews", async (req, res) => {
+    try {
+      const review = await storage.createReview(req.body);
+      res.json(review);
+    } catch (error) {
+      console.error("Create review error:", error);
+      res.status(500).json({ error: "Failed to create review" });
+    }
+  });
+
+  app.patch("/api/admin/reviews/:id", async (req, res) => {
+    try {
+      await storage.updateReview(parseInt(req.params.id), req.body);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Update review error:", error);
+      res.status(500).json({ error: "Failed to update review" });
+    }
+  });
+
+  app.delete("/api/admin/reviews/:id", async (req, res) => {
+    try {
+      await storage.deleteReview(parseInt(req.params.id));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete review error:", error);
+      res.status(500).json({ error: "Failed to delete review" });
+    }
+  });
+
+  // Blog endpoints
+  app.get("/api/blog", async (req, res) => {
+    try {
+      const posts = await storage.getBlogPosts();
+      // Filter to only published posts for public endpoint
+      const publishedPosts = posts.filter(p => p.isPublished === 1);
+      res.json(publishedPosts);
+    } catch (error) {
+      console.error("Blog error:", error);
+      res.status(500).json({ error: "Failed to get blog posts" });
+    }
+  });
+
+  app.get("/api/admin/blog", async (req, res) => {
+    try {
+      const posts = await storage.getBlogPosts();
+      res.json(posts);
+    } catch (error) {
+      console.error("Admin blog error:", error);
+      res.status(500).json({ error: "Failed to get blog posts" });
+    }
+  });
+
+  app.post("/api/admin/blog", async (req, res) => {
+    try {
+      const post = await storage.createBlogPost(req.body);
+      res.json(post);
+    } catch (error) {
+      console.error("Create blog error:", error);
+      res.status(500).json({ error: "Failed to create blog post" });
+    }
+  });
+
+  app.patch("/api/admin/blog/:id", async (req, res) => {
+    try {
+      await storage.updateBlogPost(parseInt(req.params.id), req.body);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Update blog error:", error);
+      res.status(500).json({ error: "Failed to update blog post" });
+    }
+  });
+
+  app.delete("/api/admin/blog/:id", async (req, res) => {
+    try {
+      await storage.deleteBlogPost(parseInt(req.params.id));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete blog error:", error);
+      res.status(500).json({ error: "Failed to delete blog post" });
+    }
+  });
+
+  // AI Blog Generation endpoint
+  app.post("/api/admin/generate-blog", async (req, res) => {
+    try {
+      const { topic, tone, length } = req.body;
+
+      if (!topic) {
+        return res.status(400).json({ error: "Topic is required" });
+      }
+
+      const prompt = `Write a professional blog post for a career coaching website called "Path-Finder Career Guidance" run by Mahalakshmi Mahadevan.
+
+Topic: ${topic}
+Tone: ${tone || "professional and inspiring"}
+Length: ${length || "medium"} (short = 300 words, medium = 500 words, long = 800 words)
+
+The blog should:
+1. Be relevant to career guidance, career transitions, or professional development
+2. Include practical, actionable advice
+3. Be engaging and supportive in tone
+4. Include a compelling title
+5. Include a brief excerpt/summary (2-3 sentences)
+
+Format the response as JSON with the following structure:
+{
+  "title": "Blog Title Here",
+  "excerpt": "A brief 2-3 sentence summary of the post",
+  "content": "The full blog post content in markdown format"
+}`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-5",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        max_completion_tokens: 2048,
+      });
+
+      const content = response.choices[0]?.message?.content;
+      if (!content) {
+        throw new Error("No content generated");
+      }
+
+      const blogData = JSON.parse(content);
+      
+      // Generate slug from title
+      const slug = blogData.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+
+      res.json({
+        title: blogData.title,
+        slug,
+        excerpt: blogData.excerpt,
+        content: blogData.content,
+      });
+    } catch (error) {
+      console.error("AI generation error:", error);
+      res.status(500).json({ error: "Failed to generate blog content" });
     }
   });
 

@@ -52,6 +52,37 @@ export const pageViews = pgTable("page_views", {
 
 export type PageView = typeof pageViews.$inferSelect;
 
+// Reviews/Testimonials
+export const reviews = pgTable("reviews", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  company: text("company"),
+  content: text("content").notNull(),
+  rating: integer("rating").default(5).notNull(),
+  imageUrl: text("image_url"),
+  isVisible: integer("is_visible").default(1).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Review = typeof reviews.$inferSelect;
+
+// Blog posts
+export const blogPosts = pgTable("blog_posts", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  title: text("title").notNull(),
+  slug: text("slug").notNull(),
+  excerpt: text("excerpt").notNull(),
+  content: text("content").notNull(),
+  imageUrl: text("image_url"),
+  author: text("author").default("Mahalakshmi Mahadevan").notNull(),
+  isPublished: integer("is_published").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+
 // Payment records
 export const payments = pgTable("payments", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),

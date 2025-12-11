@@ -3,7 +3,9 @@ import {
   type InsertContactSubmission,
   type ButtonClick,
   type PageView,
-  type Payment
+  type Payment,
+  type Review,
+  type BlogPost
 } from "@shared/schema";
 
 export interface IStorage {
@@ -25,6 +27,19 @@ export interface IStorage {
   getPayments(): Promise<Payment[]>;
   updatePaymentStatus(orderId: string, paymentId: string, status: string): Promise<void>;
   
+  // Reviews
+  createReview(review: Omit<Review, 'id' | 'createdAt'>): Promise<Review>;
+  getReviews(): Promise<Review[]>;
+  updateReview(id: number, review: Partial<Review>): Promise<void>;
+  deleteReview(id: number): Promise<void>;
+  
+  // Blog posts
+  createBlogPost(post: Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt'>): Promise<BlogPost>;
+  getBlogPosts(): Promise<BlogPost[]>;
+  getBlogPost(id: number): Promise<BlogPost | undefined>;
+  updateBlogPost(id: number, post: Partial<BlogPost>): Promise<void>;
+  deleteBlogPost(id: number): Promise<void>;
+  
   // Stats
   getStats(): Promise<{
     totalContacts: number;
@@ -39,6 +54,8 @@ export class MemStorage implements IStorage {
   private buttonClicks: Map<string, ButtonClick>;
   private pageViews: Map<string, PageView>;
   private payments: Map<number, Payment>;
+  private reviews: Map<number, Review>;
+  private blogPosts: Map<number, BlogPost>;
   private idCounter: number;
 
   constructor() {
@@ -46,7 +63,49 @@ export class MemStorage implements IStorage {
     this.buttonClicks = new Map();
     this.pageViews = new Map();
     this.payments = new Map();
+    this.reviews = new Map();
+    this.blogPosts = new Map();
     this.idCounter = 1;
+    
+    // Initialize with some sample reviews
+    this.initializeSampleData();
+  }
+  
+  private initializeSampleData() {
+    const sampleReviews: Omit<Review, 'id' | 'createdAt'>[] = [
+      {
+        name: "Priya Sharma",
+        role: "Software Engineer",
+        company: "Microsoft",
+        content: "Mahalakshmi's career guidance was transformative. She helped me transition from a stagnant role to my dream job at a top tech company. Her insights on resume building and interview prep were invaluable.",
+        rating: 5,
+        imageUrl: null,
+        isVisible: 1,
+      },
+      {
+        name: "Rahul Menon",
+        role: "Product Manager",
+        company: "Amazon",
+        content: "The career path planning sessions helped me understand exactly what steps I needed to take to reach my goals. Within 6 months, I secured a PM role at a FAANG company!",
+        rating: 5,
+        imageUrl: null,
+        isVisible: 1,
+      },
+      {
+        name: "Anitha Krishnan",
+        role: "College Student",
+        company: "IIT Bangalore",
+        content: "As a confused engineering student, the career guidance helped me discover my passion for data science. The personalized approach made all the difference.",
+        rating: 5,
+        imageUrl: null,
+        isVisible: 1,
+      },
+    ];
+    
+    sampleReviews.forEach(review => {
+      const id = this.idCounter++;
+      this.reviews.set(id, { ...review, id, createdAt: new Date() });
+    });
   }
 
   async createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission> {
@@ -150,6 +209,70 @@ export class MemStorage implements IStorage {
         break;
       }
     }
+  }
+
+  // Reviews
+  async createReview(review: Omit<Review, 'id' | 'createdAt'>): Promise<Review> {
+    const id = this.idCounter++;
+    const newReview: Review = {
+      id,
+      ...review,
+      createdAt: new Date(),
+    };
+    this.reviews.set(id, newReview);
+    return newReview;
+  }
+
+  async getReviews(): Promise<Review[]> {
+    return Array.from(this.reviews.values()).sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
+  }
+
+  async updateReview(id: number, review: Partial<Review>): Promise<void> {
+    const existing = this.reviews.get(id);
+    if (existing) {
+      this.reviews.set(id, { ...existing, ...review });
+    }
+  }
+
+  async deleteReview(id: number): Promise<void> {
+    this.reviews.delete(id);
+  }
+
+  // Blog posts
+  async createBlogPost(post: Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt'>): Promise<BlogPost> {
+    const id = this.idCounter++;
+    const now = new Date();
+    const newPost: BlogPost = {
+      id,
+      ...post,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.blogPosts.set(id, newPost);
+    return newPost;
+  }
+
+  async getBlogPosts(): Promise<BlogPost[]> {
+    return Array.from(this.blogPosts.values()).sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
+  }
+
+  async getBlogPost(id: number): Promise<BlogPost | undefined> {
+    return this.blogPosts.get(id);
+  }
+
+  async updateBlogPost(id: number, post: Partial<BlogPost>): Promise<void> {
+    const existing = this.blogPosts.get(id);
+    if (existing) {
+      this.blogPosts.set(id, { ...existing, ...post, updatedAt: new Date() });
+    }
+  }
+
+  async deleteBlogPost(id: number): Promise<void> {
+    this.blogPosts.delete(id);
   }
 
   async getStats(): Promise<{
