@@ -132,11 +132,11 @@ export function HeroSection() {
               <Button
                 size="lg"
                 variant="outline"
-                onClick={() => scrollToSection("about")}
+                onClick={() => scrollToSection("pricing")}
                 data-testid="button-hero-learn-more"
               >
                 <Play className="mr-2 w-4 h-4" />
-                Learn More
+                View Plans
               </Button>
             </motion.div>
 

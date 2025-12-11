@@ -58,8 +58,8 @@ const services: Service[] = [
 ];
 
 export function ServicesSection() {
-  const scrollToContact = () => {
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+  const scrollToPricing = () => {
+    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -124,10 +124,10 @@ export function ServicesSection() {
                 <Button
                   variant="ghost"
                   className="w-full justify-between group/btn"
-                  onClick={scrollToContact}
+                  onClick={scrollToPricing}
                   data-testid={`button-service-learn-${service.title.toLowerCase().replace(/\s+/g, '-')}`}
                 >
-                  Learn More
+                  View Pricing
                   <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
                 </Button>
               </Card>
