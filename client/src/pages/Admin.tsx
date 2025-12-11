@@ -5,14 +5,10 @@ import {
   Lock, 
   Users, 
   CreditCard, 
-  MousePointerClick, 
   Eye,
   Mail,
   Phone,
   Calendar,
-  CheckCircle,
-  Clock,
-  XCircle,
   ArrowLeft,
   RefreshCw,
   DollarSign,
@@ -42,60 +38,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { ContactSubmission, ButtonClick, PageView, Payment, Review, BlogPost } from "@shared/schema";
+import type { ContactSubmission, ButtonClick, Payment, Review, BlogPost } from "@shared/schema";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-
-// All buttons on the website with their information
-const allButtons = [
-  // Navigation
-  { id: "link-logo", name: "Logo", section: "Navigation", description: "Scrolls to home section" },
-  { id: "link-nav-home", name: "Home Nav", section: "Navigation", description: "Scrolls to home section" },
-  { id: "link-nav-about", name: "About Nav", section: "Navigation", description: "Scrolls to about section" },
-  { id: "link-nav-services", name: "Services Nav", section: "Navigation", description: "Scrolls to services section" },
-  { id: "link-nav-pricing", name: "Pricing Nav", section: "Navigation", description: "Scrolls to pricing section" },
-  { id: "link-nav-testimonials", name: "Testimonials Nav", section: "Navigation", description: "Scrolls to testimonials section" },
-  { id: "link-nav-contact", name: "Contact Nav", section: "Navigation", description: "Scrolls to contact section" },
-  { id: "button-book-session", name: "Book Session (Header)", section: "Navigation", description: "Scrolls to contact form" },
-  { id: "button-mobile-menu", name: "Mobile Menu Toggle", section: "Navigation", description: "Opens/closes mobile navigation" },
-  
-  // Hero Section
-  { id: "button-hero-book-session", name: "Book Your Session", section: "Hero", description: "Scrolls to contact form" },
-  { id: "button-hero-learn-more", name: "View Plans", section: "Hero", description: "Scrolls to pricing section" },
-  
-  // Services Section
-  { id: "button-service-learn-career-guidance", name: "Career Guidance Learn More", section: "Services", description: "Opens career guidance detail page" },
-  { id: "button-service-learn-career-path-planning", name: "Career Path Planning Learn More", section: "Services", description: "Opens career path planning detail page" },
-  { id: "button-service-learn-resume-&-profile-building", name: "Resume Building Learn More", section: "Services", description: "Opens resume building detail page" },
-  { id: "button-service-learn-interview-preparation", name: "Interview Prep Learn More", section: "Services", description: "Opens interview preparation detail page" },
-  { id: "button-service-learn-leadership-coaching", name: "Leadership Coaching Learn More", section: "Services", description: "Opens leadership coaching detail page" },
-  { id: "button-service-learn-behavioral-training", name: "Behavioral Training Learn More", section: "Services", description: "Opens behavioral training detail page" },
-  
-  // Pricing Section
-  { id: "button-buy-standard", name: "Buy Standard Plan", section: "Pricing", description: "Initiates Razorpay payment for standard plan" },
-  { id: "button-buy-premium", name: "Buy Premium Plan", section: "Pricing", description: "Initiates Razorpay payment for premium plan" },
-  
-  // Contact Section
-  { id: "button-contact-submit", name: "Send Message", section: "Contact", description: "Submits contact form" },
-  { id: "link-contact-email", name: "Email Link", section: "Contact", description: "Opens email client" },
-  { id: "link-contact-phone", name: "Phone Link", section: "Contact", description: "Initiates phone call" },
-  { id: "link-whatsapp", name: "WhatsApp Button", section: "Contact", description: "Opens WhatsApp chat" },
-  { id: "link-linkedin", name: "LinkedIn Button", section: "Contact", description: "Opens LinkedIn profile" },
-  { id: "button-book-call", name: "Book Discovery Call", section: "Contact", description: "Opens WhatsApp with pre-filled message" },
-  
-  // Footer
-  { id: "footer-whatsapp", name: "Footer WhatsApp", section: "Footer", description: "Opens WhatsApp chat" },
-  { id: "footer-linkedin", name: "Footer LinkedIn", section: "Footer", description: "Opens LinkedIn profile" },
-  { id: "footer-email", name: "Footer Email", section: "Footer", description: "Opens email client" },
-  
-  // Service Detail Pages
-  { id: "button-back-services", name: "Back to Services", section: "Service Detail", description: "Returns to main page services section" },
-  { id: "button-get-started", name: "Get Started", section: "Service Detail", description: "Scrolls to pricing section" },
-  { id: "button-whatsapp-inquiry", name: "Quick Inquiry", section: "Service Detail", description: "Opens WhatsApp for inquiry" },
-  { id: "button-view-pricing", name: "View Pricing Plans", section: "Service Detail", description: "Scrolls to pricing section" },
-  { id: "button-email-inquiry", name: "Email Inquiry", section: "Service Detail", description: "Opens email client" },
-];
 
 function AdminLogin({ onLogin }: { onLogin: () => void }) {
   const [password, setPassword] = useState("");
@@ -213,12 +159,8 @@ function Dashboard() {
     queryKey: ["/api/admin/contacts"],
   });
 
-  const { data: buttonClicks = [], refetch: refetchClicks } = useQuery<ButtonClick[]>({
+  const { data: buttonClicks = [] } = useQuery<ButtonClick[]>({
     queryKey: ["/api/admin/button-clicks"],
-  });
-
-  const { data: pageViews = [], refetch: refetchViews } = useQuery<PageView[]>({
-    queryKey: ["/api/admin/page-views"],
   });
 
   const { data: payments = [], refetch: refetchPayments } = useQuery<Payment[]>({
@@ -402,8 +344,6 @@ function Dashboard() {
   const refreshAll = () => {
     refetchStats();
     refetchContacts();
-    refetchClicks();
-    refetchViews();
     refetchPayments();
     refetchReviews();
     refetchBlog();
@@ -481,12 +421,8 @@ function Dashboard() {
           />
         </div>
 
-        <Tabs defaultValue="buttons" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 max-w-4xl">
-            <TabsTrigger value="buttons" data-testid="tab-buttons">
-              <MousePointerClick className="w-4 h-4 mr-2" />
-              Buttons
-            </TabsTrigger>
+        <Tabs defaultValue="contacts" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 max-w-3xl">
             <TabsTrigger value="contacts" data-testid="tab-contacts">
               <Users className="w-4 h-4 mr-2" />
               Contacts
@@ -507,73 +443,7 @@ function Dashboard() {
               <BarChart3 className="w-4 h-4 mr-2" />
               Analytics
             </TabsTrigger>
-            <TabsTrigger value="pages" data-testid="tab-pages">
-              <Eye className="w-4 h-4 mr-2" />
-              Pages
-            </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="buttons">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MousePointerClick className="w-5 h-5" />
-                  All Website Buttons
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Complete list of all interactive buttons and their functions
-                </p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {["Navigation", "Hero", "Services", "Pricing", "Contact", "Footer", "Service Detail"].map(section => {
-                    const sectionButtons = allButtons.filter(b => b.section === section);
-                    if (sectionButtons.length === 0) return null;
-                    
-                    return (
-                      <div key={section}>
-                        <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                          <Badge variant="outline">{section}</Badge>
-                          <span className="text-sm text-muted-foreground">
-                            ({sectionButtons.length} buttons)
-                          </span>
-                        </h3>
-                        <div className="grid gap-3">
-                          {sectionButtons.map(button => {
-                            const clickData = buttonClicks.find(c => c.buttonId === button.id);
-                            return (
-                              <div
-                                key={button.id}
-                                className="flex items-center justify-between p-4 rounded-lg bg-card border"
-                              >
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-3">
-                                    <span className="font-medium text-foreground">{button.name}</span>
-                                    <code className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground">
-                                      {button.id}
-                                    </code>
-                                  </div>
-                                  <p className="text-sm text-muted-foreground mt-1">
-                                    {button.description}
-                                  </p>
-                                </div>
-                                <div className="text-right">
-                                  <div className="text-lg font-bold text-foreground">
-                                    {clickData?.clickCount || 0}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">clicks</div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           <TabsContent value="contacts">
             <Card>
@@ -1090,7 +960,7 @@ function Dashboard() {
               <CardContent>
                 {buttonClicks.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
-                    <MousePointerClick className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p>No click data yet</p>
                   </div>
                 ) : (
@@ -1114,45 +984,6 @@ function Dashboard() {
                               }}
                             />
                           </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="pages">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Eye className="w-5 h-5" />
-                  Page Views
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {pageViews.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <Eye className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>No page view data yet</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {pageViews.map(view => (
-                      <div
-                        key={view.id}
-                        className="flex items-center justify-between p-4 rounded-lg bg-card border"
-                      >
-                        <div>
-                          <code className="text-sm font-medium text-foreground">{view.pagePath}</code>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Last viewed: {new Date(view.lastViewed).toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold text-foreground">{view.viewCount}</div>
-                          <div className="text-xs text-muted-foreground">views</div>
                         </div>
                       </div>
                     ))}
