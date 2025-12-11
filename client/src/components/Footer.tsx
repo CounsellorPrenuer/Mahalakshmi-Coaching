@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { Compass, Heart, Mail, Phone, Linkedin } from "lucide-react";
+import { Heart, Mail, Phone, Linkedin } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
+import logoImage from "@assets/Find_Your_Path_Logo_Design_-_Mahalakshmi_1765429315366.png";
 
 const footerLinks = {
   services: [
@@ -39,17 +40,13 @@ export function Footer() {
                 e.preventDefault();
                 scrollToSection("#home");
               }}
-              className="flex items-center gap-2 mb-4"
+              className="block mb-4"
             >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
-                <Compass className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <span className="font-bold text-lg text-foreground">Path-Finder</span>
-                <span className="text-xs block text-muted-foreground -mt-1">
-                  Career Guidance
-                </span>
-              </div>
+              <img
+                src={logoImage}
+                alt="Find Your Path - Career Guidance"
+                className="h-12 w-auto object-contain"
+              />
             </a>
             <p className="text-muted-foreground text-sm mb-4">
               Discover Your Potential, Define Your Path. Expert career coaching

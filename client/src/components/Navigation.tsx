@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Compass } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
+import logoImage from "@assets/Find_Your_Path_Logo_Design_-_Mahalakshmi_1765429315366.png";
 
 interface NavItem {
   label: string;
@@ -67,21 +68,15 @@ export function Navigation() {
                 e.preventDefault();
                 scrollToSection("#home");
               }}
-              className="flex items-center gap-2 group"
+              className="flex items-center group"
               whileHover={{ scale: 1.02 }}
               data-testid="link-logo"
             >
-              <motion.div
-                className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center"
-                animate={{ boxShadow: ["0 0 0 0 rgba(124, 58, 237, 0.4)", "0 0 0 8px rgba(124, 58, 237, 0)", "0 0 0 0 rgba(124, 58, 237, 0.4)"] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <Compass className="w-5 h-5 text-white" />
-              </motion.div>
-              <div className="hidden sm:block">
-                <span className="font-bold text-lg text-foreground">Path-Finder</span>
-                <span className="text-xs block text-muted-foreground -mt-1">Career Guidance</span>
-              </div>
+              <img
+                src={logoImage}
+                alt="Find Your Path - Career Guidance"
+                className="h-10 w-auto object-contain"
+              />
             </motion.a>
 
             <div className="hidden md:flex items-center gap-1">

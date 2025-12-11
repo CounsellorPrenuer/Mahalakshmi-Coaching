@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Shield, Heart, Users, Target, Star, CheckCircle } from "lucide-react";
-import heroImage from "@assets/generated_images/professional_career_coach_headshot.png";
+import mahalakshmiPhoto from "@assets/Mahalakshmi_2_photo_-_Mahalakshmi_1765429331496.jpg";
 
 interface TimelineItem {
   year: string;
@@ -76,7 +76,7 @@ export function AboutSection() {
                 transition={{ duration: 4, repeat: Infinity }}
               />
               <img
-                src={heroImage}
+                src={mahalakshmiPhoto}
                 alt="Mahalakshmi Mahadevan"
                 className="relative rounded-2xl shadow-xl w-full max-w-sm mx-auto lg:mx-0 object-cover"
                 data-testid="img-about"
