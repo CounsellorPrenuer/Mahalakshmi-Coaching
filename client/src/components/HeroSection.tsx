@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Play, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroImage from "@assets/generated_images/professional_career_coach_headshot.png";
 
 const headlines = [
   "Transform Your Career Journey",
@@ -78,14 +77,13 @@ export function HeroSection() {
         ))}
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <motion.div
-            className="text-center lg:text-left"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
+      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <motion.div
+          className="text-center"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
             <motion.div
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-sm text-foreground mb-6"
               initial={{ opacity: 0, scale: 0.8 }}
@@ -106,7 +104,7 @@ export function HeroSection() {
             </h1>
 
             <motion.p
-              className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0"
+              className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
@@ -117,7 +115,7 @@ export function HeroSection() {
             </motion.p>
 
             <motion.div
-              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+              className="flex flex-col sm:flex-row gap-4 justify-center"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
@@ -143,7 +141,7 @@ export function HeroSection() {
             </motion.div>
 
             <motion.div
-              className="flex items-center gap-8 mt-12 justify-center lg:justify-start"
+              className="flex items-center gap-8 mt-12 justify-center flex-wrap"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
@@ -163,56 +161,7 @@ export function HeroSection() {
                 <div className="text-sm text-muted-foreground">Success Rate</div>
               </div>
             </motion.div>
-          </motion.div>
-
-          <motion.div
-            className="relative hidden lg:block"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            <motion.div
-              className="absolute -inset-4 bg-gradient-to-r from-primary/30 to-purple-500/30 rounded-3xl blur-2xl"
-              animate={{
-                scale: [1, 1.05, 1],
-                opacity: [0.5, 0.7, 0.5],
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-            />
-            <motion.div
-              className="relative"
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 6, repeat: Infinity, repeatType: "reverse" }}
-            >
-              <img
-                src={heroImage}
-                alt="Mahalakshmi Mahadevan - Career Coach"
-                className="relative rounded-3xl shadow-2xl w-full max-w-md mx-auto object-cover"
-                data-testid="img-hero"
-              />
-              <motion.div
-                className="absolute -bottom-6 -left-6 bg-card border border-border rounded-2xl p-4 shadow-xl"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1 }}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center">
-                    <span className="text-xl text-white font-bold">A+</span>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-foreground">Certified Coach</div>
-                    <div className="text-sm text-muted-foreground">ICF Accredited</div>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
