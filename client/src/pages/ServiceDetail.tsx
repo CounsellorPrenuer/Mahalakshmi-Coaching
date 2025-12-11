@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams, Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check, Phone, Mail } from "lucide-react";
@@ -123,6 +124,10 @@ export default function ServiceDetail() {
   const params = useParams();
   const serviceKey = params.service as string;
   const service = servicesData[serviceKey];
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [serviceKey]);
 
   if (!service) {
     return (
