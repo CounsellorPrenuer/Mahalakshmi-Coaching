@@ -1,0 +1,171 @@
+Create a stunning, hypermodern career coaching website for Mahalakshmi Mahadevan (Path-Finder Career Guidance) with the following specifications:
+
+## BRAND IDENTITY
+- Business Name: Path-Finder Career Guidance
+- Domain: FindYourPath.in
+- Tagline: "Discover Your Potential, Define Your Path"
+- Logo: Use the color scheme from the provided logo (incorporate blues, purples, and professional tones)
+- Contact: careercoachmahalakshmi@gmail.com | 8861303243
+- LinkedIn: www.linkedin.com/in/mahadevanmahalakshmi
+
+## DESIGN REQUIREMENTS
+
+### 1. STUNNING UI & UX
+- Create a hypermodern, minimalist design with premium feel
+- Use glassmorphism, subtle shadows, and layered depth
+- Smooth scrolling with parallax effects
+- Mobile-first responsive design
+- Accessibility compliant (WCAG 2.1 AA)
+
+### 2. COLOR SCHEME & THEME
+- Extract and implement colors from the logo (blues, purples, professional gradients)
+- Create a unique, memorable color palette
+- Implement both LIGHT and DARK mode toggle
+- Smooth theme transition animations
+- Use vibrant gradients for CTAs and accents
+- Ensure proper contrast ratios in both modes
+
+### 3. ANIMATIONS & INTERACTIONS
+- Smooth fade-in animations on scroll (Intersection Observer)
+- Micro-interactions on buttons and cards
+- Floating elements with subtle movements
+- Animated gradient backgrounds
+- Page transition effects
+- Loading animations
+- Hover effects with scale and glow
+- Staggered content reveals
+
+### 4. CUSTOM CURSOR
+- Design a custom cursor that follows mouse movement
+- Add cursor trail effect with fade
+- Interactive cursor states (hover, click, text selection)
+- Glowing particle effect around cursor
+- Different cursor states for different elements (buttons, links, text)
+
+### 5. PAGES & SECTIONS
+
+#### Homepage:
+- Hero section with animated gradient background
+- Compelling headline: "Transform Your Career Journey"
+- Brief intro about Mahalakshmi
+- Animated statistics (clients helped, years of experience, etc.)
+- Services preview cards
+- Testimonials carousel
+- CTA buttons throughout
+
+#### About Me Section:
+- Professional journey timeline (Indian Army → L&D → Career Counselling)
+- 10+ years of experience highlighted
+- Core values: Leadership, Behavioral Training, Mentoring
+- Approach: Calm, Empathetic, Structured
+- Professional photo display
+- Skills visualization
+
+#### Services Offered:
+- Career Guidance & Counseling
+- Career Path Planning
+- Resume & Profile Building
+- Interview Preparation
+- Leadership Coaching
+- Behavioral Training
+- Each service as an interactive card with hover effects
+- Detailed service descriptions with icons
+- Pricing/package information (if applicable)
+
+#### Contact Section:
+- Modern contact form with validation
+- Email: careercoachmahalakshmi@gmail.com
+- Phone: 8861303243 (click to call)
+- LinkedIn integration with profile embed
+- Location/availability information
+- Social media links
+- WhatsApp integration for quick contact
+
+### 6. ADMIN DASHBOARD
+Create a secure admin panel with:
+- Login authentication (username/password)
+- Dashboard overview:
+  * Total inquiries/messages
+  * Recent contact form submissions
+  * Analytics (page views, popular services)
+  * Appointment requests
+- Content Management:
+  * Edit About Me section
+  * Add/Edit/Delete services
+  * Manage testimonials
+  * Update contact information
+- Message Management:
+  * View all contact form submissions
+  * Mark as read/unread
+  * Reply functionality
+  * Archive/delete messages
+- Settings:
+  * Change admin password
+  * Toggle features on/off
+  * Customize theme colors
+  * Manage site metadata
+- Modern admin UI with sidebar navigation
+- Dark mode support in admin panel too
+
+### 7. TECHNICAL FEATURES
+- Built with React + Vite or Next.js
+- Tailwind CSS for styling
+- Framer Motion for animations
+- React Router for navigation
+- Form validation with React Hook Form
+- Local storage for theme preference
+- Session storage for admin authentication
+- Responsive images with lazy loading
+- SEO optimized (meta tags, Open Graph)
+- Performance optimized (code splitting, compression)
+
+### 8. UNIQUE ELEMENTS
+- Animated morphing shapes in background
+- Particle system on hero section
+- 3D card tilt effects on hover
+- Smooth color transitions between sections
+- Interactive timeline for career journey
+- Floating action button for quick contact
+- Scroll progress indicator
+- Back to top button with animation
+- Cookie consent banner
+- Newsletter signup section
+- Blog/Resources section (placeholder for future)
+
+### 9. ANIMATIONS SPECIFICS
+- Hero text: Typewriter effect or fade-up animation
+- Service cards: Stagger animation on load
+- Testimonials: Carousel with smooth transitions
+- Stats counter: Count-up animation when in view
+- Contact form: Shake on error, success checkmark animation
+- Navigation: Smooth slide-in mobile menu
+- Logo: Subtle pulse/glow animation
+
+### 10. CURSOR ANIMATION DETAILS
+- Custom circular cursor (20-30px)
+- Trail of 5-7 smaller circles following with delay
+- Gradient fill matching theme colors
+- Blend mode: screen or difference for contrast
+- Scale up 1.5x on interactive elements
+- Morphing effect on click
+- Hide default cursor
+- Disable on mobile/touch devices
+
+## CONTENT GUIDELINES
+- Professional yet warm and approachable tone
+- Emphasize transformation and growth
+- Use action-oriented language
+- Include social proof and credibility indicators
+- Clear CTAs: "Book Your Session", "Start Your Journey", "Get In Touch"
+
+## DELIVERABLES
+- Fully functional website with all pages
+- Responsive design (mobile, tablet, desktop)
+- Admin dashboard with authentication
+- Light/Dark mode toggle working
+- All animations implemented
+- Custom cursor working
+- Clean, documented code
+- README with setup instructions
+
+Build this as a production-ready, modern career coaching website that stands out with exceptional design and user experience.
