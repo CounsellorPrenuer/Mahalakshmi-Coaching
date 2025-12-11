@@ -47,14 +47,14 @@ export function PoweredBySection() {
           viewport={{ once: true }}
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-            Powered by Path-Finder's
+            Powered by Mentoria's
             <br />
             <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
               Career Discovery Platform
             </span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Every consultation includes lifetime access to our comprehensive platform
+            Every Find your Path includes lifetime access to our comprehensive platform
             for career discovery, mentorship, and lifelong upskilling.
           </p>
         </motion.div>

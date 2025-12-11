@@ -162,10 +162,21 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Path-Finder Career Guidance. All rights
-            reserved.
-          </p>
+          <div className="text-center sm:text-left">
+            <p className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} Path-Finder Career Guidance. All rights
+              reserved.
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              In partnership with Mentoria for enhanced career guidance services.
+            </p>
+            <a 
+              href="/privacy-policy" 
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-1 inline-block"
+            >
+              Privacy Policy
+            </a>
+          </div>
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             Made with <Heart className="w-4 h-4 text-red-500" /> in India
           </p>
