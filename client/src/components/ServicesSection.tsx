@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 import { 
   Compass, 
   Map, 
@@ -14,6 +15,7 @@ import { Button } from "@/components/ui/button";
 interface Service {
   icon: typeof Compass;
   title: string;
+  slug: string;
   description: string;
   features: string[];
 }
@@ -22,46 +24,48 @@ const services: Service[] = [
   {
     icon: Compass,
     title: "Career Guidance",
+    slug: "career-guidance",
     description: "Personalized career counseling to help you discover your true calling and align your professional goals.",
     features: ["Self-assessment", "Career exploration", "Goal setting"],
   },
   {
     icon: Map,
     title: "Career Path Planning",
+    slug: "career-path-planning",
     description: "Strategic roadmaps for your career progression with actionable milestones and timelines.",
     features: ["5-year planning", "Skill gap analysis", "Industry insights"],
   },
   {
     icon: FileText,
     title: "Resume & Profile Building",
+    slug: "resume-&-profile-building",
     description: "Create compelling resumes and LinkedIn profiles that stand out to recruiters and hiring managers.",
     features: ["ATS optimization", "LinkedIn makeover", "Portfolio review"],
   },
   {
     icon: MessageSquare,
     title: "Interview Preparation",
+    slug: "interview-preparation",
     description: "Mock interviews and coaching to boost your confidence and ace any interview format.",
     features: ["Mock interviews", "Body language", "Salary negotiation"],
   },
   {
     icon: Crown,
     title: "Leadership Coaching",
+    slug: "leadership-coaching",
     description: "Develop executive presence and leadership skills to advance into senior roles.",
     features: ["Executive coaching", "Team management", "Strategic thinking"],
   },
   {
     icon: Brain,
     title: "Behavioral Training",
+    slug: "behavioral-training",
     description: "Enhance soft skills, emotional intelligence, and workplace effectiveness.",
     features: ["Communication", "Conflict resolution", "Time management"],
   },
 ];
 
 export function ServicesSection() {
-  const scrollToPricing = () => {
-    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <section id="services" className="py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -121,15 +125,16 @@ export function ServicesSection() {
                     </li>
                   ))}
                 </ul>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-between group/btn"
-                  onClick={scrollToPricing}
-                  data-testid={`button-service-learn-${service.title.toLowerCase().replace(/\s+/g, '-')}`}
-                >
-                  View Pricing
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-                </Button>
+                <Link href={`/service/${service.slug}`}>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-between group/btn"
+                    data-testid={`button-service-learn-${service.title.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    Learn More
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+                  </Button>
+                </Link>
               </Card>
             </motion.div>
           ))}
