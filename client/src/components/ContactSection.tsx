@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
+import { apiRequest } from "@/lib/queryClient";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -69,13 +70,15 @@ export function ContactSection() {
 
   const onSubmit = async (data: ContactForm) => {
     setIsSubmitting(true);
-    // todo: remove mock functionality - integrate with backend
-    console.log("Contact form submitted:", data);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      await apiRequest("POST", "/api/contact", data);
+      setIsSubmitted(true);
+      form.reset();
+      setTimeout(() => setIsSubmitted(false), 5000);
+    } catch (error) {
+      console.error("Contact submission error:", error);
+    }
     setIsSubmitting(false);
-    setIsSubmitted(true);
-    form.reset();
-    setTimeout(() => setIsSubmitted(false), 5000);
   };
 
   return (

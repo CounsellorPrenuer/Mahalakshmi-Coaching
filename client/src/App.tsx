@@ -10,6 +10,7 @@ import { BackToTop } from "@/components/BackToTop";
 import { FloatingContactFAB } from "@/components/FloatingContactFAB";
 import Home from "@/pages/Home";
 import ServiceDetail from "@/pages/ServiceDetail";
+import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -17,6 +18,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/service/:service" component={ServiceDetail} />
+      <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
   );
