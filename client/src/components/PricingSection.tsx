@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, X, Loader2, GraduationCap, BookOpen, Briefcase, Users } from "lucide-react";
+import { Check, X, GraduationCap, BookOpen, Briefcase, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import BookingModal from "@/components/BookingModal";
+import { formatCurrency } from "@/lib/currency";
 
 interface Feature {
   text: string;
@@ -13,6 +13,7 @@ interface Feature {
 }
 
 interface Package {
+  planId: string;
   planName: string;
   price: number;
   features: Feature[];
@@ -31,11 +32,12 @@ interface Category {
 
 const categories: Category[] = [
   {
-    id: "8-9",
-    label: "8-9 Students",
+    id: "8-10",
+    label: "8-10 Students",
     icon: BookOpen,
     packages: {
       standard: {
+        planId: "pkg-1",
         planName: "Discover",
         price: 5500,
         features: [
@@ -49,6 +51,7 @@ const categories: Category[] = [
         ],
       },
       premium: {
+        planId: "pkg-2",
         planName: "Discover Plus+",
         price: 15000,
         isPopular: true,
@@ -70,6 +73,7 @@ const categories: Category[] = [
     icon: GraduationCap,
     packages: {
       standard: {
+        planId: "pkg-3",
         planName: "Achieve Online",
         price: 5999,
         features: [
@@ -83,6 +87,7 @@ const categories: Category[] = [
         ],
       },
       premium: {
+        planId: "pkg-4",
         planName: "Achieve Plus+",
         price: 10599,
         isPopular: true,
@@ -100,10 +105,11 @@ const categories: Category[] = [
   },
   {
     id: "college",
-    label: "College Graduates",
+    label: "College Students",
     icon: Users,
     packages: {
       standard: {
+        planId: "pkg-5",
         planName: "Ascend Online",
         price: 6499,
         features: [
@@ -117,6 +123,7 @@ const categories: Category[] = [
         ],
       },
       premium: {
+        planId: "pkg-6",
         planName: "Ascend Plus+",
         price: 10599,
         isPopular: true,
@@ -133,11 +140,12 @@ const categories: Category[] = [
     },
   },
   {
-    id: "professionals",
+    id: "working",
     label: "Working Professionals",
     icon: Briefcase,
     packages: {
       standard: {
+        planId: "mp-3",
         planName: "Ascend Online",
         price: 6499,
         features: [
@@ -151,12 +159,13 @@ const categories: Category[] = [
         ],
       },
       premium: {
+        planId: "mp-2",
         planName: "Ascend Plus+",
         price: 10599,
         isPopular: true,
         features: [
           { text: "Psychometric assessment to measure interests, personality and abilities", included: true },
-          { text: "2 career counselling sessions", included: true },
+          { text: "3 career counselling sessions", included: true },
           { text: "Lifetime access to Knowledge Gateway", included: true },
           { text: "Attend live webinars by industry experts", included: true },
           { text: "Customized reports with certificate/online courses info", included: true },
@@ -168,125 +177,21 @@ const categories: Category[] = [
   },
 ];
 
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
-
-function loadRazorpayScript(): Promise<boolean> {
-  return new Promise((resolve) => {
-    if (window.Razorpay) {
-      resolve(true);
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-}
+type SelectedPlan = {
+  planId: string;
+  title: string;
+  category: string;
+  price: number;
+};
 
 interface PricingCardProps {
   pkg: Package;
   category: string;
   type: "standard" | "premium";
+  onBuy: (plan: SelectedPlan) => void;
 }
 
-function PricingCard({ pkg, category, type }: PricingCardProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
-  const handlePayment = async () => {
-    setIsLoading(true);
-
-    try {
-      const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded) {
-        toast({
-          title: "Error",
-          description: "Failed to load payment gateway. Please try again.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      const orderResponse = await apiRequest("POST", "/api/create-order", {
-        amount: pkg.price,
-        currency: "INR",
-        planName: pkg.planName,
-        category: category,
-      });
-
-      const orderData = await orderResponse.json();
-
-      if (!orderData.order_id) {
-        throw new Error("Failed to create order");
-      }
-
-      const options = {
-        key: orderData.key_id,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: "Path-Finder Career Guidance",
-        description: `${pkg.planName} - ${category}`,
-        order_id: orderData.order_id,
-        handler: async function (response: any) {
-          try {
-            const verifyResponse = await apiRequest("POST", "/api/verify-payment", {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            });
-
-            const verifyData = await verifyResponse.json();
-
-            if (verifyData.success) {
-              toast({
-                title: "Payment Successful!",
-                description: `Thank you for purchasing ${pkg.planName}. We'll contact you shortly.`,
-              });
-            } else {
-              throw new Error("Payment verification failed");
-            }
-          } catch {
-            toast({
-              title: "Verification Failed",
-              description: "Payment was made but verification failed. Please contact support.",
-              variant: "destructive",
-            });
-          }
-        },
-        prefill: {
-          name: "",
-          email: "",
-          contact: "",
-        },
-        theme: {
-          color: "#7C3AED",
-        },
-        modal: {
-          ondismiss: function () {
-            setIsLoading(false);
-          },
-        },
-      };
-
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+function PricingCard({ pkg, category, type, onBuy }: PricingCardProps) {
   return (
     <Card
       className={`relative p-6 h-full flex flex-col ${
@@ -309,7 +214,7 @@ function PricingCard({ pkg, category, type }: PricingCardProps) {
         <div className="text-2xl font-bold text-foreground mb-2">{pkg.planName}</div>
         <div className="flex items-baseline justify-center gap-1">
           <span className="text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-            ₹{pkg.price.toLocaleString("en-IN")}
+            {formatCurrency(pkg.price)}
           </span>
         </div>
       </div>
@@ -344,18 +249,17 @@ function PricingCard({ pkg, category, type }: PricingCardProps) {
             : ""
         }`}
         variant={pkg.isPopular ? "default" : "outline"}
-        onClick={handlePayment}
-        disabled={isLoading}
+        onClick={() =>
+          onBuy({
+            planId: pkg.planId,
+            title: pkg.planName,
+            category,
+            price: pkg.price,
+          })
+        }
         data-testid={`button-buy-${type}`}
       >
-        {isLoading ? (
-          <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Processing...
-          </>
-        ) : (
-          "BUY NOW"
-        )}
+        BUY NOW
       </Button>
     </Card>
   );
@@ -363,6 +267,7 @@ function PricingCard({ pkg, category, type }: PricingCardProps) {
 
 export function PricingSection() {
   const [activeCategory, setActiveCategory] = useState(categories[0].id);
+  const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
   const currentCategory = categories.find((c) => c.id === activeCategory)!;
 
   return (
@@ -427,11 +332,13 @@ export function PricingSection() {
               pkg={currentCategory.packages.standard}
               category={currentCategory.label}
               type="standard"
+              onBuy={setSelectedPlan}
             />
             <PricingCard
               pkg={currentCategory.packages.premium}
               category={currentCategory.label}
               type="premium"
+              onBuy={setSelectedPlan}
             />
           </motion.div>
         </AnimatePresence>
@@ -446,6 +353,14 @@ export function PricingSection() {
           Secure payments powered by Razorpay. All prices are in Indian Rupees (INR).
         </motion.p>
       </div>
+
+      {selectedPlan && (
+        <BookingModal
+          open
+          onOpenChange={(open) => !open && setSelectedPlan(null)}
+          {...selectedPlan}
+        />
+      )}
     </section>
   );
 }
