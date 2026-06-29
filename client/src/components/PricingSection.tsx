@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import BookingModal from "@/components/BookingModal";
+import CustomPlans from "@/components/CustomPlans";
 import { formatCurrency } from "@/lib/currency";
+import { useCms } from "@/hooks/useCms";
 
 interface Feature {
   text: string;
@@ -269,6 +271,8 @@ export function PricingSection() {
   const [activeCategory, setActiveCategory] = useState(categories[0].id);
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
   const currentCategory = categories.find((c) => c.id === activeCategory)!;
+  const { data } = useCms();
+  const customPlans = data?.customPlans ?? [];
 
   return (
     <section id="pricing" className="py-24 bg-background">
@@ -342,6 +346,18 @@ export function PricingSection() {
             />
           </motion.div>
         </AnimatePresence>
+
+        <CustomPlans
+          plans={customPlans}
+          onBuyClick={(plan) =>
+            setSelectedPlan({
+              planId: plan.planId,
+              title: plan.title,
+              category: "Custom Mentorship",
+              price: plan.price,
+            })
+          }
+        />
 
         <motion.p
           className="text-center text-sm text-muted-foreground mt-8"
