@@ -1,0 +1,22 @@
+-- Mahalakshmi-Coaching D1 coupons — TEMPLATE ONLY (nothing active by default)
+--
+-- Coupons are NOT enabled until you add rows here and run:
+--   cd worker && npx wrangler d1 execute mentoria-db --remote --file="../scripts/seed-d1-coupons.sql"
+--
+-- When adding a coupon, uncomment/add a row and fill in values:
+--
+-- INSERT OR REPLACE INTO coupons (code, discount_type, value, min_amount, max_discount, active, expires_at, project_id, id, discount_value)
+-- VALUES
+--   ('EXAMPLE10', 'percentage', 10, 0, NULL, 1, NULL, 'mahalakshmi-coaching', 'mahalakshmi-coaching-EXAMPLE10', 10),
+--   ('EXAMPLE500', 'fixed', 500, 0, NULL, 1, NULL, 'mahalakshmi-coaching', 'mahalakshmi-coaching-EXAMPLE500', 500);
+--
+-- Fields:
+--   code           — coupon code (uppercase recommended)
+--   discount_type  — 'percentage' or 'fixed'
+--   value / discount_value — same number (10 = 10% or Rs. 10)
+--   project_id     — 'mahalakshmi-coaching'
+--   id             — unique: 'mahalakshmi-coaching-{CODE}'
+--   active         — 1 = on, 0 = off
+--   expires_at     — NULL = never, or ISO datetime
+--   min_amount     — minimum plan amount (INR) before coupon applies
+--   max_discount   — cap for % coupons; NULL = no cap

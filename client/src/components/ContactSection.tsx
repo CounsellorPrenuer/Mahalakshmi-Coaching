@@ -32,7 +32,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { apiRequest } from "@/lib/queryClient";
+import { workerPost } from "@/lib/workerApi";
+import { CONTACT_EMAIL } from "@/lib/config";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -71,12 +72,22 @@ export function ContactSection() {
   const onSubmit = async (data: ContactForm) => {
     setIsSubmitting(true);
     try {
-      await apiRequest("POST", "/api/contact", data);
+      await workerPost("/api/forms/submit", {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        message: data.message,
+        serviceType: data.service,
+      });
       setIsSubmitted(true);
       form.reset();
       setTimeout(() => setIsSubmitted(false), 5000);
     } catch (error) {
-      console.error("Contact submission error:", error);
+      const subject = encodeURIComponent(`Contact enquiry: ${data.service}`);
+      const body = encodeURIComponent(
+        `Name: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone}\nService: ${data.service}\n\n${data.message}`,
+      );
+      window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
     }
     setIsSubmitting(false);
   };

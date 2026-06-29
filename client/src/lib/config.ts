@@ -1,0 +1,10 @@
+export const PROJECT_ID = "mahalakshmi-coaching";
+export const SANITY_PROJECT_ID = "jaefsos8";
+export const SANITY_DATASET = "production";
+export const SANITY_STUDIO_HOST = "mahalakshmi-coaching";
+export const GITHUB_PAGES_REPO_NAME = "Mahalakshmi-Coaching";
+export const SITE_BASE = "/Mahalakshmi-Coaching";
+export const WORKER_URL = "https://multi-tenant-platform.gauravgoodreads.workers.dev";
+export const CONTACT_EMAIL = "careercoachmahalakshmi@gmail.com";
+export const CONTACT_PHONE = "+91 886 130 3243";
+export const LIVE_SITE_URL = "https://counsellorprenuer.github.io/Mahalakshmi-Coaching/";

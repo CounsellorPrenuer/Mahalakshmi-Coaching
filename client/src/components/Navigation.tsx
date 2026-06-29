@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "wouter";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
@@ -8,14 +9,16 @@ import logoImage from "@assets/Find_Your_Path_Logo_Design_-_Mahalakshmi_17654293
 interface NavItem {
   label: string;
   href: string;
+  route?: boolean;
 }
 
 const navItems: NavItem[] = [
   { label: "Home", href: "#home" },
   { label: "About", href: "#about" },
   { label: "Services", href: "#services" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Testimonials", href: "#testimonials" },
+  { label: "Pricing", href: "/pricing", route: true },
+  { label: "Blog", href: "/blog", route: true },
+  { label: "Testimonials", href: "/testimonials", route: true },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -81,22 +84,35 @@ export function Navigation() {
             </motion.a>
 
             <div className="hidden md:flex items-center gap-1">
-              {navItems.map((item) => (
-                <Button
-                  key={item.href}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => scrollToSection(item.href)}
-                  className={`${
-                    activeSection === item.href.slice(1)
-                      ? "text-foreground bg-muted"
-                      : "text-muted-foreground"
-                  }`}
-                  data-testid={`link-nav-${item.label.toLowerCase()}`}
-                >
-                  {item.label}
-                </Button>
-              ))}
+              {navItems.map((item) =>
+                item.route ? (
+                  <Link key={item.href} href={item.href}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground"
+                      data-testid={`link-nav-${item.label.toLowerCase()}`}
+                    >
+                      {item.label}
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button
+                    key={item.href}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => scrollToSection(item.href)}
+                    className={`${
+                      activeSection === item.href.slice(1)
+                        ? "text-foreground bg-muted"
+                        : "text-muted-foreground"
+                    }`}
+                    data-testid={`link-nav-${item.label.toLowerCase()}`}
+                  >
+                    {item.label}
+                  </Button>
+                ),
+              )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -149,18 +165,31 @@ export function Navigation() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
                   >
-                    <Button
-                      variant="ghost"
-                      className={`w-full justify-start ${
-                        activeSection === item.href.slice(1)
-                          ? "bg-muted text-foreground"
-                          : "text-muted-foreground"
-                      }`}
-                      onClick={() => scrollToSection(item.href)}
-                      data-testid={`link-mobile-nav-${item.label.toLowerCase()}`}
-                    >
-                      {item.label}
-                    </Button>
+                    {item.route ? (
+                      <Link href={item.href}>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start text-muted-foreground"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          data-testid={`link-mobile-nav-${item.label.toLowerCase()}`}
+                        >
+                          {item.label}
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        className={`w-full justify-start ${
+                          activeSection === item.href.slice(1)
+                            ? "bg-muted text-foreground"
+                            : "text-muted-foreground"
+                        }`}
+                        onClick={() => scrollToSection(item.href)}
+                        data-testid={`link-mobile-nav-${item.label.toLowerCase()}`}
+                      >
+                        {item.label}
+                      </Button>
+                    )}
                   </motion.div>
                 ))}
                 <Button
